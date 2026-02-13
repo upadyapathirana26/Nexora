@@ -13,14 +13,13 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-
 // Import routes
 const authRoutes = require('./routes/authRoutes');
+const postRoutes = require('./routes/postRoutes'); // 👈 ADD THIS
 
 // Use routes
 app.use('/api/auth', authRoutes);
-
-
+app.use('/api/posts', postRoutes); // 👈 ADD THIS
 
 // Root route
 app.get('/', (req, res) => {
