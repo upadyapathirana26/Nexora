@@ -50,18 +50,36 @@ router.post('/', upload.single('image'), async (req, res) => {
 // @desc    Get all posts (for feed)
 // @route   GET /api/posts
 // @access  Public
+// Get feed (posts from followed users + self)
 router.get('/', async (req, res) => {
   try {
-    const posts = await Post.find()
+    const userId = req.query.userId;
+    
+    if (!userId) {
+      // Fallback: all posts
+      const posts = await Post.find()
+        .populate('userId', 'name avatar')
+        .sort({ createdAt: -1 })
+        .limit(50);
+      return res.json(posts);
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Include self + followed users
+    const followingIds = [userId, ...user.following];
+    const posts = await Post.find({ userId: { $in: followingIds } })
       .populate('userId', 'name avatar')
       .sort({ createdAt: -1 })
-      .limit(20); // Get latest 20 posts
+      .limit(50);
 
     res.json(posts);
   } catch (error) {
-    console.error('Get posts error:', error.message);
+    console.error('Feed error:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 module.exports = router;

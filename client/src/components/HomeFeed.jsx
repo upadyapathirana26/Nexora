@@ -21,14 +21,17 @@ const HomeFeed = () => {
     }
   }, [navigate, user]);
 
-  // Fetch posts on load
+  // Fetch posts from followed users + self
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/posts');
+        const res = await axios.get(`http://localhost:5000/api/posts?userId=${user.id}`);
         setPosts(res.data);
       } catch (err) {
         console.error('Failed to fetch posts');
+        // Fallback to all posts if query fails
+        const fallback = await axios.get('http://localhost:5000/api/posts');
+        setPosts(fallback.data);
       } finally {
         setFetching(false);
       }
@@ -49,7 +52,7 @@ const HomeFeed = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/posts', formData, {
+      const res = await axios.post('http://lushaka:5000/api/posts', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setPosts([res.data, ...posts]);
@@ -129,7 +132,8 @@ const HomeFeed = () => {
       <div className="space-y-4">
         {posts.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-            <p className="text-gray-500">No posts yet. Be the first to share something!</p>
+            <p className="text-gray-500">No posts from people you follow yet.</p>
+            <p className="text-gray-400 mt-2">Follow others to see their updates!</p>
           </div>
         ) : (
           posts.map((post) => (

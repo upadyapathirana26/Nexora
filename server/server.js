@@ -15,11 +15,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const postRoutes = require('./routes/postRoutes'); // 👈 ADD THIS
+const postRoutes = require('./routes/postRoutes'); // 
+const followRoutes = require('./routes/followRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/posts', postRoutes); // 👈 ADD THIS
+app.use('/api/posts', postRoutes); 
+app.use('/api/follow', followRoutes);
 
 // Root route
 app.get('/', (req, res) => {
